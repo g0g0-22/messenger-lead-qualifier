@@ -36,6 +36,6 @@ def get_username(uid):
         response = requests.get(url=url, params=params)
         data = response.json()
         if "first_name" in data and "last_name" in data:
-            return f"{data['first_name']}"
+            return f"{data['first_name']} {data['last_name']}"
         else:
             return " "

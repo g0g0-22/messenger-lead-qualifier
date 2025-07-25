@@ -1,5 +1,6 @@
 import os
 import requests
+from ..db.data import add_message
 # from dotenv import load_dotenv
 
 # load_dotenv()
@@ -20,5 +21,6 @@ def sendMessage(recipient_id: str, message_text: str):
         "access_token": PAGE_TOKEN
     }
     response = requests.post(url, params=params, json=payload, headers=headers)
+    add_message(recipient_id, " ", "assistant", message_text)
     print("Status:", response.status_code)
     print("Response:", response.text)

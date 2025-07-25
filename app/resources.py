@@ -3,10 +3,11 @@ from flask import request
 from flask_restx import Resource, Namespace
 from flask import make_response
 from .facebook.sendMessage import sendMessage
-from .ai.responseAi import generate_reply
-from .db.data import add_message
+from .ai.responseAi import respond_ai
+from .db.data import add_message, get_conversation
 from .facebook.getUsername import get_username
 ns = Namespace("api")
+
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 PAGE_TOKEN = os.getenv("PAGE_ACCESS_TOKEN")
 if VERIFY_TOKEN is None:
@@ -43,5 +44,10 @@ class Webhook(Resource):
         recipientId = data["entry"][0]["messaging"][0]["sender"]["id"]
         text = data["entry"][0]["messaging"][0]["message"]["text"]
         add_message(recipientId, get_username(uid=recipientId), "user", text)
+
+        conversation = get_conversation(recipientId)
+        respond_ai(recipientId, conversation)
+
+        # print("✅CONVERSATION:", get_conversation(recipientId))
         # sendMessage(recipient_id=recipientId, message_text=text)
         return {"status": "EVENT_RECEIVED"}, 200
