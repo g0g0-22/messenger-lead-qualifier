@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
+from ..sheets import add_summary_to_sheets
 from ..db.data import get_conversation
 from ..facebook.sendMessage import sendMessage
 from ..facebook.getUsername import get_username
@@ -43,9 +44,8 @@ def respond_ai(uid, conversation):
                     At the start, address the user by their first name: {username.split(" ")[0]}
 
                     After every message from the user, check the full conversation.
-                    If you now have **enough information** to make a full summary of their request, start your message with [SUMMARY] and then reply with:
-                    1. A clear and concise summary of what they want.
-                    2. A final "Thank you, an agent will follow up with you soon!" message.
+                    If you now have **enough information** to make a full summary of their request, you **MUST** start your message with [SUMMARY] and then reply with:
+                    1. A clear and concise summary of what they want, addresed in 3rd person, to the travel agent reading.
 
                     If you still need more information, continue the conversation naturally and ask the next most relevant question.
                     """
@@ -56,7 +56,7 @@ def respond_ai(uid, conversation):
     content = response.choices[0].message.content
     if content.startswith("[SUMMARY]"):
         summary_text = content.split("[SUMMARY]")[1].strip()
-        # add_summary_to_sheets(uid, summary_text)
+        add_summary_to_sheets(uid, username, summary_text)
         sendMessage(
             uid, f"Thank you for your interest, {username.split(" ")[0]}. An agent will contact you soon!")
     else:
